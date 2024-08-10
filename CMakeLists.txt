@@ -88,9 +88,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
             )
         endif()
     endif()
-    target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
-    target_link_libraries(QingLiaoClient PRIVATE
-        OpenSSL::SSL OpenSSL::Crypto asio::asio)
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET QingLiaoClient APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -119,17 +116,18 @@ else()
                 )
             endif()
         endif()
-        target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
-        target_link_libraries(QingLiaoClient PRIVATE
-            OpenSSL::SSL OpenSSL::Crypto asio::asio)
     endif()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
+target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
 target_link_libraries(QingLiaoClient PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
-    Qt${QT_VERSION_MAJOR}::Core)
+    Qt${QT_VERSION_MAJOR}::Core
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    asio::asio)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(QingLiaoClient)

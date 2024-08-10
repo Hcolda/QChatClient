@@ -11,9 +11,6 @@ If you want the server, see [QingLiaoChatServer](https://github.com/Hcolda/QingL
 
 ### Build with cmake
 ```cmd
-vcpkg install asio
-vcpkg install qt
-
 cmake -S . -B build
 cmake --build build --config Release
 ```

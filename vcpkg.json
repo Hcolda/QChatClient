@@ -6,6 +6,6 @@
     "openssl",
     "qtbase",
     "qttools",
-    "qt"
+    "qttranslations"
   ]
 }

@@ -1,4 +1,16 @@
-/**
+import os
+
+def process(dir = './'):
+    for i in os.listdir(dir):
+        if os.path.isdir(os.path.join(dir, i)):
+            process(os.path.join(dir, i))
+        else:
+            ext = os.path.splitext(i)[1]
+            if ext == '.cpp' or ext == '.hpp' or ext == '.h':
+                with open(os.path.join(dir, i), 'rb') as f:
+                    text = f.read()
+                with open(os.path.join(dir, i), 'wb') as f:
+                    f.write("""/**
 *    This is a lightweight chat client.
 *    Copyright (C) 2022-2025  氢聊-Hcolda.com
 *
@@ -16,37 +28,8 @@
 *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef MANAGER_H
-#define MANAGER_H
+""".encode())
+                    f.write(text[3:])
 
-#include <memory>
-#include <string>
-
-#include "src/network/network.h"
-#include "src/mainWindow/baseMainWindow.h"
-
-namespace qingliao
-{
-    struct ManagerImpl;
-    
-    class Manager
-    {
-    public:
-        Manager(std::weak_ptr<qingliao::BaseNetwork>);
-        ~Manager();
-
-        bool addMainWindow(const std::string&, qingliao::BaseMainWindow*);
-        bool removeMainWindow(const std::string&);
-
-    protected:
-        void connected_callback();
-        void disconnected_callback();
-        void connected_error_callback(std::error_code);
-        void received_message(std::string);
-
-    private:
-        std::shared_ptr<ManagerImpl> m_manager_impl;
-    };
-}
-
-#endif // !MANAGER_H
+if __name__ == "__main__":
+    process()

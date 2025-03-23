@@ -1,11 +1,8 @@
 ﻿{
-  "name": "qingliao-client",
+  "name": "qchat-client",
   "version-string": "0.0.1",
   "dependencies": [
     "asio",
-    "openssl",
-    "qtbase",
-    "qttools",
-    "qttranslations"
+    "openssl"
   ]
 }

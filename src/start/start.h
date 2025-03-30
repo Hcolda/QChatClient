@@ -23,7 +23,7 @@
 #include <QPoint>
 #include <QMouseEvent>
 
-#include "src/mainWindow/baseMainWindow.h"
+#include "../mainWindow/baseMainWindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Start; }

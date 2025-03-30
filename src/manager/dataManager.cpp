@@ -22,9 +22,9 @@
 #include <unordered_map>
 #include <shared_mutex>
 
-#include "src/network/dataPackage.h"
-#include "src/factory/factory.h"
-#include "src/parser/Json.h"
+#include "../network/dataPackage.h"
+#include "../factory/factory.h"
+#include "../parser/Json.h"
 
 extern qingliao::Factory clientFactory;
 

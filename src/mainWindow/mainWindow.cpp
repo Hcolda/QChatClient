@@ -30,10 +30,10 @@
 #include <regex>
 #include <stdexcept>
 
-#include "src/factory/factory.h"
-#include "src/manager/manager.h"
-#include "src/start/start.h"
-#include "src/login/login.h"
+#include "../factory/factory.h"
+#include "../manager/manager.h"
+#include "../start/start.h"
+#include "../login/login.h"
 
 extern qingliao::Factory clientFactory;
 

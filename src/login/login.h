@@ -25,7 +25,7 @@
 
 #include <system_error>
 
-#include "src/mainWindow/baseMainWindow.h"
+#include "../mainWindow/baseMainWindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Login; }

@@ -37,7 +37,7 @@ set(PROJECT_SOURCES
         src/register/register.cpp
         src/register/register.ui
 
-        src/messageBox/messageBox.hpp
+        src/messageBox/messageBox.h
 
         src/network/dataPackage.cpp
         src/network/dataPackage.h

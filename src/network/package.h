@@ -1,90 +1,74 @@
-/**
-*    This is a lightweight chat client.
-*    Copyright (C) 2022-2025  氢聊-Hcolda.com
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation, either version 3 of the License, or
-*    (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
 #include <string>
 #include <string_view>
 
-namespace qingliao
+namespace qls
 {
-    /*
-    * @brief 数据包处理类
-    */
-    class Package
-    {
-    public:
-        Package() = default;
-        ~Package() = default;
+    
+/**
+ * @brief A class to handle data packages.
+ */
+class Package final
+{
+public:
+    Package() = default;
+    ~Package() noexcept = default;
 
-        Package(const Package&) = delete;
-        Package(Package&&) = delete;
+    Package(const Package&) = delete;
+    Package(Package&&) = delete;
 
-        Package& operator =(const Package&) = delete;
-        Package& operator =(Package&&) = delete;
+    Package& operator=(const Package&) = delete;
+    Package& operator=(Package&&) = delete;
 
-        /*
-        * @brief 写入数据到类中
-        * @param data 二进制数据
-        */
-        void write(std::string_view data);
+    /**
+     * @brief Writes data into the class.
+     * @param data The binary data to write.
+     */
+    void write(std::string_view data);
 
-        /*
-        * @brief 是否可以读取
-        * @return true 是, false 否
-        */
-        bool canRead() const;
+    /**
+     * @brief Checks if data can be read from the package.
+     * @return true if data can be read, false otherwise.
+     */
+    [[nodiscard]] bool canRead() const;
 
-        /*
-        * @brief 第一个数据包的长度
-        * @return size 第一个数据包的长度
-        */
-        size_t firstMsgLength() const;
+    /**
+     * @brief Gets the length of the first message in the package.
+     * @return The length of the first message.
+     */
+    [[nodiscard]] std::size_t firstMsgLength() const;
 
-        /*
-        * @brief 读取数据包
-        * @return 返回数据包
-        */
-        std::string read();
+    /**
+     * @brief Reads a data package.
+     * @return The data package.
+     */
+    [[nodiscard]] std::string read();
 
-        /*
-        * @brief 读取类中buffer数据
-        * @return string buffer
-        */
-        const std::string& readBuffer() const;
+    /**
+     * @brief Reads the buffer data in the package.
+     * @return The buffer as a string.
+     */
+    [[nodiscard]] std::string_view readBuffer() const;
 
-        /*
-        * @brief 设置buffer
-        * @param buffer
-        */
-        void setBuffer(const std::string& b);
+    /**
+     * @brief Sets the buffer with the given data.
+     * @param buffer The data to set in the buffer.
+     */
+    void setBuffer(std::string_view buffer);
 
-        /*
-        * @brief 制造数据包
-        * @param 二进制数据
-        * @return 经过数据包包装的二进制数据
-        */
-        static std::string makePackage(std::string_view data);
+    /**
+     * @brief Creates a data package from binary data.
+     * @param data The binary data.
+     * @return The binary data wrapped in a data package.
+     */
+    [[nodiscard]] static std::string makePackage(std::string_view data);
 
-    private:
-        std::string m_buffer;
-    };
-}
+private:
+    std::string m_buffer; ///< The buffer to store the data.
+};
+
+} // namespace qls
 
 #endif // !PACKAGE_H

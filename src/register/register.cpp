@@ -1,4 +1,4 @@
-/**
+﻿/**
 *    This is a lightweight chat client.
 *    Copyright (C) 2022-2025  氢聊-Hcolda.com
 *
@@ -29,10 +29,10 @@
 #include <format>
 
 #include "regexMatch.hpp"
-#include "src/messageBox/messageBox.hpp"
-#include "src/manager/manager.h"
-#include "src/factory/factory.h"
-#include "src/manager/dataManager.h"
+#include "../messageBox/messageBox.h"
+#include "../manager/manager.h"
+#include "../factory/factory.h"
+#include "../manager/dataManager.h"
 
 extern qingliao::Factory clientFactory;
 

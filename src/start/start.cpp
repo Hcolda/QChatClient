@@ -27,9 +27,9 @@
 #include <QMessageBox>
 #include <regex>
 
-#include "src/manager/manager.h"
-#include "src/factory/factory.h"
-#include "src/network/network.h"
+#include "../manager/manager.h"
+#include "../factory/factory.h"
+#include "../network/network.h"
 
 extern qingliao::Factory clientFactory;
 

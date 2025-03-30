@@ -1,67 +1,49 @@
-/**
-*    This is a lightweight chat client.
-*    Copyright (C) 2022-2025  氢聊-Hcolda.com
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation, either version 3 of the License, or
-*    (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 #include "package.h"
 
-#include <stdexcept>
+#include <system_error>
+#include <cstring>
+#include <cstdint>
 
-#include "networkEndinass.hpp"
+#include "networkEndianness.hpp"
+#include "qls_error.h"
 
-void qingliao::Package::write(std::string_view data)
+void qls::Package::write(std::string_view data)
 {
     m_buffer += data;
 }
 
-bool qingliao::Package::canRead() const
+bool qls::Package::canRead() const
 {
-    using namespace qingliao;
-
     if (m_buffer.size() < sizeof(int))
         return false;
 
     int length = 0;
     std::memcpy(&length, m_buffer.c_str(), sizeof(int));
-    length = swapNetworkEndianness(length);
-    if (length > m_buffer.size())
+    length = qls::swapNetworkEndianness(length);
+    if (length > INT32_MAX / 2)
+        throw std::system_error(qls_errc::data_too_large);
+    else if (length > m_buffer.size())
         return false;
-
     return true;
 }
 
-size_t qingliao::Package::firstMsgLength() const
+std::size_t qls::Package::firstMsgLength() const
 {
-    using namespace qingliao;
-
     if (m_buffer.size() < sizeof(int))
         return 0;
 
     int length = 0;
     std::memcpy(&length, m_buffer.c_str(), sizeof(int));
-    length = swapNetworkEndianness(length);
-    return size_t(length);
+    length = qls::swapNetworkEndianness(length);
+    return std::size_t(length);
 }
 
-std::string qingliao::Package::read()
+std::string qls::Package::read()
 {
     if (!canRead())
-        throw std::logic_error("Can't read data");
+        throw std::system_error(qls_errc::incomplete_package);
     else if (!firstMsgLength())
-        throw std::logic_error("length is empty");
+        throw std::system_error(qls_errc::empty_length);
 
     std::string result = m_buffer.substr(0, firstMsgLength());
     m_buffer = m_buffer.substr(firstMsgLength());
@@ -69,22 +51,22 @@ std::string qingliao::Package::read()
     return result;
 }
 
-const std::string& qingliao::Package::readBuffer() const
+std::string_view qls::Package::readBuffer() const
 {
     return m_buffer;
 }
 
-void qingliao::Package::setBuffer(const std::string& b)
+void qls::Package::setBuffer(std::string_view b)
 {
     m_buffer = b;
 }
 
-std::string qingliao::Package::makePackage(std::string_view data)
+std::string qls::Package::makePackage(std::string_view data)
 {
-    int lenght = static_cast<int>(data.size());
+    int length = static_cast<int>(data.size());
     std::string result;
     result.resize(sizeof(int));
-    std::memcpy(result.data(), result.data(), sizeof(int));
+    std::memcpy(result.data(), &length, sizeof(int));
     result += data;
 
     return result;

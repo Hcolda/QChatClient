@@ -1,4 +1,4 @@
-/**
+﻿/**
 *    This is a lightweight chat client.
 *    Copyright (C) 2022-2025  氢聊-Hcolda.com
 *
@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-#include "src/mainWindow/baseMainWindow.h"
+#include "../mainWindow/baseMainWindow.h"
 
 namespace qingliao
 {

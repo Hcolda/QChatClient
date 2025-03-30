@@ -22,8 +22,8 @@
 #include <unordered_map>
 #include <shared_mutex>
 
-#include "src/factory/factory.h"
-#include "src/mainWindow/baseMainWindow.h"
+#include "../factory/factory.h"
+#include "../mainWindow/baseMainWindow.h"
 
 extern qingliao::Factory clientFactory;
 

@@ -1,121 +1,129 @@
-/**
-*    This is a lightweight chat client.
-*    Copyright (C) 2022-2025  氢聊-Hcolda.com
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation, either version 3 of the License, or
-*    (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 #include "dataPackage.h"
 
 #include <stdexcept>
 #include <format>
+#include <cstring>
+#include <memory_resource>
+#include <functional>
 
-#include "networkEndinass.hpp"
+#include "networkEndianness.hpp"
+#include "qls_error.h"
 
-namespace qingliao
+namespace qls
 {
-    std::shared_ptr<DataPackage> DataPackage::makePackage(std::string_view data)
-    {
-        std::hash<std::string_view> hash;
-        std::shared_ptr<DataPackage> package(reinterpret_cast<DataPackage*>(new char[sizeof(DataPackage) + data.size()] { 0 }),
-            deleteDataPackage);
-        package->length = int(sizeof(DataPackage) + data.size());
-        std::memcpy(package->data, data.data(), data.size());
-        package->verifyCode = hash(data);
-        return package;
-    }
 
-    std::shared_ptr<DataPackage> DataPackage::stringToPackage(const std::string& data)
-    {
-        using namespace qingliao;
+static std::pmr::synchronized_pool_resource local_datapack_sync_pool;
 
-        // 数据包过小
-        if (data.size() < sizeof(DataPackage)) throw std::logic_error("data is too small!");
-
-        // 数据包length
-        int size = 0;
-        std::memcpy(&size, data.c_str(), sizeof(int));
-        size = swapNetworkEndianness(size);
-
-        // 数据包length与实际大小不符、length小于数据包默认大小、length非常大、数据包结尾不为2 * '\0' 报错处理
-        if (size != data.size() || size < sizeof(DataPackage)) throw std::logic_error("data is invalid!");
-        else if (size > INT32_MAX / 2) throw std::logic_error("data is too large!");
-        else if (data[size_t(size - 1)] || data[size_t(size - 2)]) throw std::logic_error("data is invalid");
-
-        std::shared_ptr<DataPackage> package(reinterpret_cast<DataPackage*>(new char[size] { 0 }),
-            deleteDataPackage);
-        std::memcpy(package.get(), data.c_str(), size);
-
-        // 端序转换
-        package->length = swapNetworkEndianness(package->length);
-        package->requestID = swapNetworkEndianness(package->requestID);
-        package->type = swapNetworkEndianness(package->type);
-        package->sequence = swapNetworkEndianness(package->sequence);
-        package->verifyCode = swapNetworkEndianness(package->verifyCode);
-
-        std::hash<std::string_view> hash;
-        size_t gethash = hash(package->getData());
-        if (gethash != package->verifyCode) throw std::logic_error(std::format("hash is different, local hash: {}, pack hash: {}",
-            gethash, package->verifyCode));
-
-        return package;
-    }
-
-    std::string DataPackage::packageToString() noexcept
-    {
-        using namespace qingliao;
-
-        size_t localLength = this->length;
-
-        // 端序转换
-        this->length = swapNetworkEndianness(this->length);
-        this->requestID = swapNetworkEndianness(this->requestID);
-        this->type = swapNetworkEndianness(this->type);
-        this->sequence = swapNetworkEndianness(this->sequence);
-        this->verifyCode = swapNetworkEndianness(this->verifyCode);
-
-        std::string data;
-        data.resize(localLength);
-        std::memcpy(data.data(), this, localLength);
-        return data;
-    }
-
-    size_t DataPackage::getPackageSize() noexcept
-    {
-        int size = 0;
-        std::memcpy(&size, &(this->length), sizeof(int));
-        return size_t(size);
-    }
-
-    size_t DataPackage::getDataSize() noexcept
-    {
-        int size = 0;
-        std::memcpy(&size, &(this->length), sizeof(int));
-        return size_t(size) - sizeof(DataPackage);
-    }
-
-    std::string DataPackage::getData()
-    {
-        std::string data;
-        size_t size = this->getDataSize();
-        data.resize(size);
-        std::memcpy(data.data(), this->data, size);
-        return data;
-    }
-
-    void DataPackage::deleteDataPackage(DataPackage* dp)
-    {
-        delete[] reinterpret_cast<char*>(dp);
-    }
+std::shared_ptr<DataPackage> DataPackage::makePackage(std::string_view data)
+{
+    const int lenth = static_cast<int>(sizeof(DataPackage) + data.size());
+    void* mem = local_datapack_sync_pool.allocate(lenth);
+    std::memset(mem, 0, lenth);
+    std::shared_ptr<DataPackage> package(static_cast<DataPackage*>(mem),
+        [lenth](DataPackage* dp) {
+            local_datapack_sync_pool.deallocate(dp, static_cast<std::size_t>(lenth));
+        });
+    package->length = lenth;
+    std::memcpy(package->data, data.data(), data.size());
+    return package;
 }
+
+std::shared_ptr<DataPackage> DataPackage::stringToPackage(std::string_view data)
+{
+    // Check if the package data is too small
+    if (data.size() < sizeof(DataPackage))
+        throw std::system_error(qls_errc::data_too_small);
+
+    // Data package length
+    int size = 0;
+    std::memcpy(&size, data.data(), sizeof(int));
+    if (!isBigEndianness())
+        size = swapEndianness(size);
+
+    // Error handling if data package length does not match actual size,
+    // if length is smaller than the default package size
+    if (size != data.size() || size < sizeof(DataPackage))
+        throw std::system_error(qls_errc::invalid_data);
+    else if (size > INT32_MAX / 2)
+        throw std::system_error(qls_errc::data_too_large);
+
+    // Allocate memory and construct the DataPackage
+    void* mem = local_datapack_sync_pool.allocate(size);
+    std::memset(mem, 0, size);
+    std::shared_ptr<DataPackage> package(static_cast<DataPackage*>(mem),
+        [lenth = size](DataPackage* dp) {
+            local_datapack_sync_pool.deallocate(dp, static_cast<std::size_t>(lenth));
+        });
+    // Copy the data from string
+    std::memcpy(package.get(), data.data(), size);
+
+    // Process data in package
+    if (!isBigEndianness()) {
+        // Endianness conversion
+        package->length = swapEndianness(package->length);
+        package->type = static_cast<DataPackageType>(swapEndianness(static_cast<int>(package->type)));
+        package->sequenceSize = swapEndianness(package->sequenceSize);
+        package->sequence = swapEndianness(package->sequence);
+        package->requestID = swapEndianness(package->requestID);
+
+        char* data = reinterpret_cast<char*>(package.get());
+        for (std::size_t i = sizeof(DataPackage); i < size - sizeof(DataPackage); ++i) {
+            data[i] = swapEndianness(data[i]);
+        }
+    }
+
+    return package;
+}
+
+std::string DataPackage::packageToString() noexcept
+{
+    using namespace qls;
+    std::string strdata;
+    strdata.resize(this->length);
+    // Copy this memory data into strdata
+    std::memcpy(strdata.data(), this, this->length);
+    // Converse the string pointer to DataPackage pointor to process data
+    DataPackage* package = reinterpret_cast<DataPackage*>(strdata.data());
+
+    // Process string data
+    if (!isBigEndianness()) {
+        // Endianness conversion
+        package->length = swapEndianness(package->length);
+        package->type = static_cast<DataPackageType>(swapEndianness(static_cast<int>(package->type)));
+        package->sequenceSize = swapEndianness(package->sequenceSize);
+        package->sequence = swapEndianness(package->sequence);
+        package->requestID = swapEndianness(package->requestID);
+
+        char* data = strdata.data();
+        for (std::size_t i = sizeof(DataPackage); i < this->length - sizeof(DataPackage); ++i) {
+            data[i] = swapEndianness(data[i]);
+        }
+    }
+
+    return strdata;
+}
+
+std::size_t DataPackage::getPackageSize() noexcept
+{
+    int size = 0;
+    std::memcpy(&size, &(this->length), sizeof(int));
+    return std::size_t(size);
+}
+
+std::size_t DataPackage::getDataSize() noexcept
+{
+    int size = 0;
+    std::memcpy(&size, &(this->length), sizeof(int));
+    return std::size_t(size) - sizeof(DataPackage);
+}
+
+std::string DataPackage::getData()
+{
+    std::string data;
+    std::size_t size = this->getDataSize();
+    data.resize(size);
+    std::memcpy(data.data(), this->data, size);
+    return data;
+}
+
+} // namespace qls

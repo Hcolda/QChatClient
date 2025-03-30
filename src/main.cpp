@@ -16,8 +16,8 @@
 *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "src/factory/factory.h"
-#include "src/mainWindow/mainWindow.h"
+#include "factory/factory.h"
+#include "mainWindow/mainWindow.h"
 
 #include <QApplication>
 #include <QLocale>

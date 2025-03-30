@@ -1,4 +1,4 @@
-/**
+﻿/**
 *    This is a lightweight chat client.
 *    Copyright (C) 2022-2025  氢聊-Hcolda.com
 *
@@ -36,7 +36,7 @@
 
 #include <format>
 
-class BaseMessageBox : public QMessageBox
+class BaseMessageBox: public QMessageBox
 {
     Q_OBJECT
 

@@ -18,7 +18,7 @@
 
 #include "factory.h"
 
-#include "src/mainWindow/mainWindow.h"
+#include "../mainWindow/mainWindow.h"
 
 namespace qingliao
 {

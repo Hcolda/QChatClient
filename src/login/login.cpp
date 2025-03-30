@@ -1,4 +1,4 @@
-/**
+﻿/**
 *    This is a lightweight chat client.
 *    Copyright (C) 2022-2025  氢聊-Hcolda.com
 *
@@ -26,10 +26,10 @@
 #include <QLineEdit>
 #include <QMessageBox>
 
-#include "src/messageBox/messageBox.hpp"
-#include "src/manager/manager.h"
-#include "src/factory/factory.h"
-#include "src/register/register.h"
+#include "../messageBox/messageBox.h"
+#include "../manager/manager.h"
+#include "../factory/factory.h"
+#include "../register/register.h"
 
 extern qingliao::Factory clientFactory;
 

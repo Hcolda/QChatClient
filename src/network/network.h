@@ -1,4 +1,4 @@
-/**
+﻿/**
 *    This is a lightweight chat client.
 *    Copyright (C) 2022-2025  氢聊-Hcolda.com
 *
@@ -25,7 +25,7 @@
 #include <string>
 #include <asio.hpp>
 
-#include "src/network/dataPackage.h"
+#include "../network/dataPackage.h"
 
 namespace qingliao
 {

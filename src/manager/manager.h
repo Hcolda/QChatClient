@@ -22,8 +22,8 @@
 #include <memory>
 #include <string>
 
-#include "src/network/network.h"
-#include "src/mainWindow/baseMainWindow.h"
+#include "../network/network.h"
+#include "../mainWindow/baseMainWindow.h"
 
 namespace qingliao
 {

@@ -1,4 +1,4 @@
-# This file is used to ignore files which are generated
+﻿# This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
 
 *~
@@ -37,8 +37,6 @@ Thumbs.db
 
 # qtcreator generated files
 *.pro.user*
-*.qbs.user*
-CMakeLists.txt.user*
 
 # xemacs temporary files
 *.flc
@@ -73,10 +71,11 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
-# Directories with generated files
-.moc/
-.obj/
-.pch/
-.rcc/
-.uic/
-/build*/
+#build
+build/
+out/
+#CMakeSettings.json
+CMakeLists.txt.user
+.vs/
+.vscode/
+.xmake/

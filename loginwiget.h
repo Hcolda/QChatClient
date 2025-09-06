@@ -7,23 +7,22 @@ namespace Ui {
 class LoginWiget;
 }
 
-class LoginWiget : public QWidget
-{
-    Q_OBJECT
+class LoginWiget : public QWidget {
+  Q_OBJECT
 
 public:
-    explicit LoginWiget(QWidget *parent = nullptr);
-    ~LoginWiget();
+  explicit LoginWiget(QWidget *parent = nullptr);
+  ~LoginWiget();
 
 protected slots:
-    void loginSlot();
-    void registerSlot();
+  void loginSlot();
+  void registerSlot();
 
 protected:
-    void login(const QString &account, const QString &password);
+  void login(const QString &account, const QString &password);
 
 private:
-    Ui::LoginWiget *ui;
+  Ui::LoginWiget *ui;
 };
 
 #endif // LOGINWIGET_H
